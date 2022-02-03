@@ -1,0 +1,97 @@
+name: Octopus Deploy Create Release
+description: Buildkite Plugin to create a release in Octopus Deploy
+author: https://github.com/OctopusDeploy
+requirements:
+  - octo
+configuration:
+  properties:
+    api_key:
+      type: string
+      description: 'The API key used to access Octopus Deploy. You must provide an API key or username and password. If the guest account is enabled, a key of API-GUEST may be used. It is strongly recommended that this value retrieved from a GitHub secret.'
+    channel:
+      type: string
+      description: 'The name or ID of the channel to use for the new release. If omitted, the best channel will be selected.'
+    config_file:
+      type: string
+      description: 'The path to a configuration file of default values with one "key=value" per line.'
+    debug:
+      type: boolean
+      default: false
+      description: 'Enable debug logging.'
+    default_package_version:
+      type: string
+      description: 'Use the default version number of all packages for this release.'
+    git_ref:
+      type: string
+      description: 'Git branch reference to the specific resources of a version controlled Octopus Project. This is required for version controlled projects.'
+    git_commit:
+      type: string
+      description: 'Git commit pointing to the specific resources of a version controlled Octopus Project. If empty, it will use the HEAD from the corresponding gitRef parameter.'
+    ignore_channel_rules:
+      type: boolean
+      default: false
+      description: 'Create the release ignoring any version rules specified by the channel.'
+    ignore_existing:
+      type: boolean
+      default: false
+      description: 'Ignore existing releases if present in Octopus Deploy with the matching version number.'
+    ignore_ssl_errors:
+      default: false
+      description: 'Ignore certificate errors when communicating with Octopus Deploy. Warning: enabling this option creates a security vulnerability.'
+    log_level:
+      enum:
+        - verbose
+        - debug
+        - information
+        - warning
+        - error
+        - fatal
+      default: 'debug'
+      description: 'The log level; valid options are "verbose", "debug", "information", "warning", "error", and "fatal".'
+    package_prerelease:
+      type: string
+      description: 'Pre-release for latest version of all packages to use for this release.'
+    packages:
+      type: [string, array]
+      description: 'A single version number or a list of version numbers to use for a package in the release. Format: StepName:Version or PackageID:Version or StepName:PackageName:Version. StepName, PackageID, and PackageName can be replaced with an asterisk ("*"). An asterisk will be assumed for StepName, PackageID, or PackageName if they are omitted.'
+    packages_folder:
+      type: string
+      description: 'The folder designated for containing packages.'
+    project:
+      type: string
+      description: 'The name or ID of the project associated with this release.'
+    proxy:
+      type: string
+      description: 'The URL of a proxy to use (i.e. https://proxy.example.com).'
+    proxy_password:
+      type: string
+      description: 'The password used to connect to a proxy. It is strongly recommended to retrieve this value from a GitHub secret. If proxy_username and proxy_password are omitted and proxy URL is specified, the default credentials are used.'
+    proxy_username:
+      type: string
+      description: 'The username used to connect to a proxy. It is strongly recommended to retrieve this value from a GitHub secret.'
+    release_notes:
+      type: string
+      description: 'The release notes associated with the new release (Markdown is supported).'
+    release_notes_file:
+      type: string
+      description: 'Path to a file that contains release notes for the new release. Supports Markdown files.'
+    release_number:
+      type: string
+      description: 'The number for the new release.'
+    server:
+      type: string
+      description: 'The base URL hosting Octopus Deploy (i.e. "https://octopus.example.com/"). It is recommended to retrieve this value from an environment variable.'
+    space:
+      type: string
+      description: 'The name or ID of a space within which this command will be executed. If omitted, the default space will be used.'
+    timeout:
+      type: integer
+      default: 600
+      description: 'A timeout value in seconds for network operations.'
+    what_if:
+      type: boolean
+      default: false
+      description: 'Perform a dry run; do not create or deploy a release.'
+  required:
+    - project
+  additionalProperties: false
