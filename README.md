@@ -79,7 +79,7 @@ steps:
       - OctopusDeploy/create-release@<version>
         project: 'HelloWorld'
         release_number: '1.0.3'
-        package_version: '1.0.1'
+        default_package_version: '1.0.1'
 ```
 
 **Multiple steps with a single package**
