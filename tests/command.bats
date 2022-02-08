@@ -8,7 +8,7 @@ export OCTO_STUB_DEBUG=/dev/tty
 @test "Running create release command" {
     export BUILDKITE_PLUGIN_CREATE_RELEASE_PROJECT="Test project"
 
-    stub octo "create-release --project Test project : echo octo command ran"
+    stub octo "create-release --project \'Test project\' : echo octo command ran"
 
     run $PWD/hooks/command
 
