@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ "${BUILDKITE_PLUGIN_CREATE_RELEASE_DEBUG:-false}" =~ (true|on|1) ]] ; then
-  echo "--- :hammer: Enabling debug mode"
+  echo "--- :octopus-deploy: Enabling debug mode"
   env | sort | grep BUILDKITE_PLUGIN_CREATE_RELEASE
 fi
 
@@ -149,17 +149,21 @@ if [[ "${BUILDKITE_PLUGIN_CREATE_RELEASE_WHAT_IF:-false}" =~ ^(true|on|1)$ ]]; t
     cmd+=( "--whatIf" )
 fi
 
+args=()
+maskedArgs=()
 #server:
-if [[ -n "${OCTOPUS_CLI_SERVER:-}" ]]; then
-    args+=( --env "OCTOPUS_CLI_SERVER" )
+if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER:-}" ]]; then
+    args+=( "--server" "${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER}" )
+    maskedArgs+=( "--server" "${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER}" )
 fi
 
 #api_key:
-if [[ -n "${OCTOPUS_CLI_API_KEY:-}" ]]; then
-    args+=( --env "OCTOPUS_CLI_API_KEY" )
+if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY:-}" ]]; then
+    args+=( "--apiKey" "${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY}" )
+    maskedArgs+=( "--apiKey" "SECRET" )
 fi
 
-echo "+++ :octopus: Running create-release"
-echo "Running command: ${cmd[@]}"
+echo "+++ :octopus-deploy: Running create-release"
+echo "Running command: ${cmd[@]} ${maskedArgs[@]}"
 
-octo ${cmd[@]}
+octo ${cmd[@]} ${args[@]}
