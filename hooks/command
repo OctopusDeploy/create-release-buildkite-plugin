@@ -34,12 +34,12 @@ cmd=( "create-release" )
 
 #channel:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_CHANNEL:-}" ]]; then
-    cmd+=( "--channel" "$BUILDKITE_PLUGIN_CREATE_RELEASE_CHANNEL" )
+    cmd+=( "--channel" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_CHANNEL}'" )
 fi
 
 #config_file:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_CONFIG_FILE:-}" ]]; then
-    cmd+=( "--configFile" "${BUILDKITE_PLUGIN_CREATE_RELEASE_CONFIG_FILE}")
+    cmd+=( "--configFile" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_CONFIG_FILE}'")
 fi
 
 #debug:
@@ -49,17 +49,17 @@ fi
 
 #default_package_version:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_DEFAULT_PACKAGE_VERSION:-}" ]]; then
-    cmd+=( "--defaultPackageVersion" "${BUILDKITE_PLUGIN_CREATE_RELEASE_DEFAULT_PACKAGE_VERSION}" )
+    cmd+=( "--defaultPackageVersion" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_DEFAULT_PACKAGE_VERSION}'" )
 fi
 
 #git_ref:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_REF:-}" ]]; then
-    cmd+=( "--gitRef" "${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_REF}")
+    cmd+=( "--gitRef" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_REF}'")
 fi
 
 #git_commit:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_COMMIT:-}" ]]; then
-    cmd+=( "--gitCommit" "${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_COMMIT}")
+    cmd+=( "--gitCommit" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_COMMIT}'")
 fi
 
 #ignore_channel_rules:
@@ -84,24 +84,24 @@ fi
 
 #package_prerelease:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGE_PRERELEASE:-}" ]]; then
-    cmd+=( "--packagePrerelease" "${BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGE_PRERELEASE}")
+    cmd+=( "--packagePrerelease" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGE_PRERELEASE}'")
 fi
 
 #packages:
 if plugin_read_list_into_result BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGES ; then
   for arg in "${result[@]}" ; do
-    cmd+=( "--package" "${arg}" )
+    cmd+=( "--package" "'${arg}'" )
   done
 fi
 
 #packages_folder:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGES_FOLDER:-}" ]]; then
-    cmd+=( "--packagesFolder" "\"${BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGES_FOLDER}\"" )
+    cmd+=( "--packagesFolder" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGES_FOLDER}'" )
 fi
 
 #project:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_PROJECT:-}" ]]; then
-    cmd+=( "--project" "${BUILDKITE_PLUGIN_CREATE_RELEASE_PROJECT}" )
+    cmd+=( "--project" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_PROJECT}'" )
 fi
 
 #proxy:
@@ -121,27 +121,27 @@ fi
 
 #release_notes:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES:-}" ]]; then
-    cmd+=( "--releaseNotes" "\"${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES}\"" )
+    cmd+=( "--releaseNotes" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES}'" )
 fi
 
 #release_notes_file:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES_FILE:-}" ]]; then
-    cmd+=( "--releaseNotesFile" "\"${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES_FILE}\"" )
+    cmd+=( "--releaseNotesFile" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES_FILE}'" )
 fi
 
 #release_number:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NUMBER:-}" ]]; then
-    cmd+=( "--releaseNumber" "\"${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NUMBER}\"" )
+    cmd+=( "--releaseNumber" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NUMBER}'" )
 fi
 
 #space:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_SPACE:-}" ]]; then
-    cmd+=( "--space" "\"${BUILDKITE_PLUGIN_CREATE_RELEASE_SPACE}\"" )
+    cmd+=( "--space" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_SPACE}'" )
 fi
 
 #timeout:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_TIMEOUT:-}" ]]; then
-    cmd+=( "--timeout" "\"${BUILDKITE_PLUGIN_CREATE_RELEASE_TIMEOUT}\"" )
+    cmd+=( "--timeout" "${BUILDKITE_PLUGIN_CREATE_RELEASE_TIMEOUT}" )
 fi
 
 #what_if:
@@ -153,13 +153,13 @@ args=()
 maskedArgs=()
 #server:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER:-}" ]]; then
-    args+=( "--server" "${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER}" )
-    maskedArgs+=( "--server" "${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER}" )
+    args+=( "--server" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER}'" )
+    maskedArgs+=( "--server" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER}'" )
 fi
 
 #api_key:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY:-}" ]]; then
-    args+=( "--apiKey" "${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY}" )
+    args+=( "--apiKey" "'${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY}'" )
     maskedArgs+=( "--apiKey" "SECRET" )
 fi
 
