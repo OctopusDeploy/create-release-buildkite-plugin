@@ -31,7 +31,7 @@ steps:
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
-        project: 'HelloWorld'
+        project: "HelloWorld"
         server: "${MY_OCTOPUS_SERVER}"
 ```
 
@@ -43,8 +43,8 @@ steps:
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
-        project: 'HelloWorld'
-        release_number: '1.0.3'
+        project: "HelloWorld"
+        release_number: "1.0.3"
         server: "${MY_OCTOPUS_SERVER}"
 ```
 
@@ -56,9 +56,9 @@ steps:
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
-        git_ref: 'main'
-        project: 'HelloWorld'
-        release_number: '1.0.3'
+        git_ref: "main"
+        project: "HelloWorld"
+        release_number: "1.0.3"
         server: "${MY_OCTOPUS_SERVER}"
 ```
 
@@ -72,9 +72,9 @@ steps:
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
-        default_package_version: '1.0.1'
-        project: 'HelloWorld'
-        release_number: '1.0.3'
+        default_package_version: "1.0.1"
+        project: "HelloWorld"
+        release_number: "1.0.3"
         server: "${MY_OCTOPUS_SERVER}"
 ```
 
@@ -87,10 +87,10 @@ steps:
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
         packages:
-          - 'StepA:1.0.1'
-          - 'StepB:1.0.2'
-        project: 'HelloWorld'
-        release_number: '1.0.3'
+          - "StepA:1.0.1"
+          - "StepB:1.0.2"
+        project: "HelloWorld"
+        release_number: "1.0.3"
         server: "${MY_OCTOPUS_SERVER}"
 ```
 
@@ -103,10 +103,10 @@ steps:
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
         packages:
-          - 'StepA:Acme.Web:1.0.0'
-          - 'StepA:Acme.Data:2.0.0'
-        project: 'HelloWorld'
-        release_number: '1.0.3'
+          - "StepA:Acme.Web:1.0.0"
+          - "StepA:Acme.Data:2.0.0"
+        project: "HelloWorld"
+        release_number: "1.0.3"
         server: "${MY_OCTOPUS_SERVER}"
 ```
 
@@ -118,9 +118,9 @@ steps:
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
-        packages_folder: 'packages'
-        project: 'HelloWorld'
-        release_number: '1.0.3'
+        packages_folder: "packages"
+        project: "HelloWorld"
+        release_number: "1.0.3"
         server: "${MY_OCTOPUS_SERVER}"
 ```
 
