@@ -29,10 +29,10 @@ Incorporate the following step in your `pipeline.yml` to create a release in Oct
 steps:
   - label: Create a release in Octopus Deploy 🐙
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1
-      api_key: "${MY_OCTOPUS_API_KEY}"
-      project: 'HelloWorld'
-      server: "${MY_OCTOPUS_SERVER}"
+    - OctopusDeploy/create-release#v0.0.1:
+        api_key: "${MY_OCTOPUS_API_KEY}"
+        project: 'HelloWorld'
+        server: "${MY_OCTOPUS_SERVER}"
 ```
 
 **Specifying the release version to use**
@@ -41,11 +41,11 @@ steps:
 steps:
   - label: Create a release in Octopus Deploy 🐙
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1
-      api_key: "${MY_OCTOPUS_API_KEY}"
-      project: 'HelloWorld'
-      release_number: '1.0.3'
-      server: "${MY_OCTOPUS_SERVER}"
+    - OctopusDeploy/create-release#v0.0.1:
+        api_key: "${MY_OCTOPUS_API_KEY}"
+        project: 'HelloWorld'
+        release_number: '1.0.3'
+        server: "${MY_OCTOPUS_SERVER}"
 ```
 
 ### Version controlled projects
@@ -54,12 +54,12 @@ steps:
 steps:
   - label: Create a release in Octopus Deploy 🐙
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1
-      api_key: "${MY_OCTOPUS_API_KEY}"
-      git_ref: 'main'
-      project: 'HelloWorld'
-      release_number: '1.0.3'
-      server: "${MY_OCTOPUS_SERVER}"
+    - OctopusDeploy/create-release#v0.0.1:
+        api_key: "${MY_OCTOPUS_API_KEY}"
+        git_ref: 'main'
+        project: 'HelloWorld'
+        release_number: '1.0.3'
+        server: "${MY_OCTOPUS_SERVER}"
 ```
 
 ### Specifying Package Version
@@ -70,12 +70,12 @@ steps:
 steps:
   - label: Create a release in Octopus Deploy 🐙
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1
-      api_key: "${MY_OCTOPUS_API_KEY}"
-      default_package_version: '1.0.1'
-      project: 'HelloWorld'
-      release_number: '1.0.3'
-      server: "${MY_OCTOPUS_SERVER}"
+    - OctopusDeploy/create-release#v0.0.1:
+        api_key: "${MY_OCTOPUS_API_KEY}"
+        default_package_version: '1.0.1'
+        project: 'HelloWorld'
+        release_number: '1.0.3'
+        server: "${MY_OCTOPUS_SERVER}"
 ```
 
 **Multiple steps with a single package**
@@ -84,14 +84,14 @@ steps:
 steps:
   - label: Create a release in Octopus Deploy 🐙
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1
-      api_key: "${MY_OCTOPUS_API_KEY}"
-      packages:
-        - 'StepA:1.0.1'
-        - 'StepB:1.0.2'
-      project: 'HelloWorld'
-      release_number: '1.0.3'
-      server: "${MY_OCTOPUS_SERVER}"
+    - OctopusDeploy/create-release#v0.0.1:
+        api_key: "${MY_OCTOPUS_API_KEY}"
+        packages:
+          - 'StepA:1.0.1'
+          - 'StepB:1.0.2'
+        project: 'HelloWorld'
+        release_number: '1.0.3'
+        server: "${MY_OCTOPUS_SERVER}"
 ```
 
 **Step with multiple packages**
@@ -100,14 +100,14 @@ steps:
 steps:
   - label: Create a release in Octopus Deploy 🐙
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1
-      api_key: "${MY_OCTOPUS_API_KEY}"
-      packages:
-        - 'StepA:Acme.Web:1.0.0'
-        - 'StepA:Acme.Data:2.0.0'
-      project: 'HelloWorld'
-      release_number: '1.0.3'
-      server: "${MY_OCTOPUS_SERVER}"
+    - OctopusDeploy/create-release#v0.0.1:
+        api_key: "${MY_OCTOPUS_API_KEY}"
+        packages:
+          - 'StepA:Acme.Web:1.0.0'
+          - 'StepA:Acme.Data:2.0.0'
+        project: 'HelloWorld'
+        release_number: '1.0.3'
+        server: "${MY_OCTOPUS_SERVER}"
 ```
 
 **Source package version from a folder containing the packages used in a project**
@@ -116,12 +116,12 @@ steps:
 steps:
   - label: Create a release in Octopus Deploy 🐙
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1
-      api_key: "${MY_OCTOPUS_API_KEY}"
-      packages_folder: 'packages'
-      project: 'HelloWorld'
-      release_number: '1.0.3'
-      server: "${MY_OCTOPUS_SERVER}"
+    - OctopusDeploy/create-release#v0.0.1:
+        api_key: "${MY_OCTOPUS_API_KEY}"
+        packages_folder: 'packages'
+        project: 'HelloWorld'
+        release_number: '1.0.3'
+        server: "${MY_OCTOPUS_SERVER}"
 ```
 
 ## 📥 Inputs
