@@ -19,8 +19,6 @@ More information about releases in Octopus Deploy:
 
 Incorporate the following step in your `pipeline.yml` to create a release in Octopus Deploy:
 
-**NOTE: These examples configure the Octopus server and API Key environment variables in the `pipeline.yml` file, this is NOT recommended and these should be configured as environment variables on the Buildkite agent.**
-
 ### Basic examples
 
 **Using version template configured on the project**
