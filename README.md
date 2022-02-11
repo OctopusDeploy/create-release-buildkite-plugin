@@ -25,7 +25,7 @@ Incorporate the following step in your `pipeline.yml` to create a release in Oct
 
 ```yml
 steps:
-  - label: :octopus-deploy: Create a release in Octopus Deploy
+  - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
@@ -37,7 +37,7 @@ steps:
 
 ```yml
 steps:
-  - label: :octopus-deploy: Create a release in Octopus Deploy
+  - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
@@ -50,7 +50,7 @@ steps:
 
 ```yml
 steps:
-  - label: :octopus-deploy: Create a release in Octopus Deploy
+  - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
@@ -66,7 +66,7 @@ steps:
 
 ```yml
 steps:
-  - label: :octopus-deploy: Create a release in Octopus Deploy
+  - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
@@ -80,7 +80,7 @@ steps:
 
 ```yml
 steps:
-  - label: :octopus-deploy: Create a release in Octopus Deploy
+  - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
@@ -96,7 +96,7 @@ steps:
 
 ```yml
 steps:
-  - label: :octopus-deploy: Create a release in Octopus Deploy
+  - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
@@ -112,7 +112,7 @@ steps:
 
 ```yml
 steps:
-  - label: :octopus-deploy: Create a release in Octopus Deploy
+  - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
     - OctopusDeploy/create-release#v0.0.1:
         api_key: "${MY_OCTOPUS_API_KEY}"
