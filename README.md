@@ -27,7 +27,7 @@ Incorporate the following step in your `pipeline.yml` to create a release in Oct
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1:
+    - OctopusDeploy/create-release#v0.1.0:
         api_key: "${MY_OCTOPUS_API_KEY}"
         project: "HelloWorld"
         server: "${MY_OCTOPUS_SERVER}"
@@ -39,7 +39,7 @@ steps:
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1:
+    - OctopusDeploy/create-release#v0.1.0:
         api_key: "${MY_OCTOPUS_API_KEY}"
         project: "HelloWorld"
         release_number: "1.0.3"
@@ -52,7 +52,7 @@ steps:
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1:
+    - OctopusDeploy/create-release#v0.1.0:
         api_key: "${MY_OCTOPUS_API_KEY}"
         git_ref: "main"
         project: "HelloWorld"
@@ -68,7 +68,7 @@ steps:
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1:
+    - OctopusDeploy/create-release#v0.1.0:
         api_key: "${MY_OCTOPUS_API_KEY}"
         default_package_version: "1.0.1"
         project: "HelloWorld"
@@ -82,7 +82,7 @@ steps:
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1:
+    - OctopusDeploy/create-release#v0.1.0:
         api_key: "${MY_OCTOPUS_API_KEY}"
         packages:
           - "StepA:1.0.1"
@@ -98,7 +98,7 @@ steps:
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1:
+    - OctopusDeploy/create-release#v0.1.0:
         api_key: "${MY_OCTOPUS_API_KEY}"
         packages:
           - "StepA:Acme.Web:1.0.0"
@@ -114,7 +114,7 @@ steps:
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
   - plugins: 
-    - OctopusDeploy/create-release#v0.0.1:
+    - OctopusDeploy/create-release#v0.1.0:
         api_key: "${MY_OCTOPUS_API_KEY}"
         packages_folder: "packages"
         project: "HelloWorld"
