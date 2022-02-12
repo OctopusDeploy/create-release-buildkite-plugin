@@ -1,5 +1,7 @@
 # Create Release Buildkite Plugin
 
+![image](https://user-images.githubusercontent.com/71493/153728059-fd0408fb-35f8-422b-a951-34f9fdef5876.png)
+
 This is a Buildkite plugin to create a release in [Octopus Deploy](https://octopus.com/). 
 
 **This plugin requires [Octopus CLI](https://octopus.com/downloads/octopuscli) to be installed on the Buildkite agent.**
