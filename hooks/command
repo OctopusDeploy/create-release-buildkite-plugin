@@ -158,7 +158,7 @@ fi
 
 #api_key:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY:-}" ]]; then
-    args+=( "--apiKey" "${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY}" )
+    args+=( "--apiKey" "$(eval "echo \$${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY}")" )
     maskedArgs+=( "--apiKey" "SECRET" )
 fi
 

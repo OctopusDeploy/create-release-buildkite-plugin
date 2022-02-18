@@ -123,3 +123,25 @@ load "$BATS_PATH/load.bash"
     unstub octo
     unset BUILDKITE_PLUGIN_CREATE_RELEASE_PROJECT
 }
+
+@test "Run create release overriding Server URL and API Key" {
+    export FAKE_API_KEY="API-123"
+    export BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY="FAKE_API_KEY"
+    export BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER="https://octopus.example"
+    export BUILDKITE_PLUGIN_CREATE_RELEASE_PROJECT="Test project"
+    export BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NUMBER="1.0.0"
+
+    stub octo "create-release --project 'Test project' --releaseNumber 1.0.0 --server https://octopus.example --apiKey API-123 : echo octo command ran"
+
+    run $PWD/hooks/command
+
+    assert_output --partial "octo command ran"
+    assert_success
+
+    unstub octo
+
+    unset BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY
+    unset BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER
+    unset BUILDKITE_PLUGIN_CREATE_RELEASE_PROJECT
+    unset BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NUMBER
+}
