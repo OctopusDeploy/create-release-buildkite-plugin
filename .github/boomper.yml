@@ -1,3 +1,0 @@
-updates:
-  - path: README.md
-    pattern: 'OctopusDeploy/create-release#(v.*):'
