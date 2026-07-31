@@ -4,7 +4,7 @@
 
 This is a [Buildkite](https://buildkite.com/) plugin to create a release in [Octopus Deploy](https://octopus.com/).
 
-**This plugin requires [Octopus CLI](https://octopus.com/downloads/octopuscli) to be installed on the Buildkite agent.**
+**This plugin requires the [`octopus` CLI](https://octopus.com/docs/octopus-rest-api/cli) to be installed on the Buildkite agent.** Earlier versions used the retired `octo` CLI — see [Migrating from v0.x](#migrating-from-v0x).
 
 ## Releases in Octopus Deploy
 
@@ -15,7 +15,26 @@ When you deploy the release, you are executing the deployment process with all t
 More information about releases in Octopus Deploy:
 
 - [Releases](https://octopus.com/docs/releases)
-- [Create release](https://octopus.com/docs/octopus-rest-api/octopus-cli/create-release)
+- [`octopus release create`](https://octopus.com/docs/octopus-rest-api/cli/octopus-release-create)
+
+## Authentication
+
+The recommended way to authenticate is the [octopus-login plugin](https://github.com/OctopusDeploy/octopus-login-buildkite-plugin), which uses OpenID Connect. No API key is stored in your pipeline, and the token it issues lasts one hour:
+
+```yml
+steps:
+  - label: ":octopus-deploy: Create a release in Octopus Deploy"
+    plugins:
+      - OctopusDeploy/octopus-login#v1.0.0:
+          server: "https://my.octopus.app"
+          service_account_id: "d5de4670-4678-4c08-9479-09555cd6ccbb"
+      - OctopusDeploy/create-release#v0.1.1:
+          project: "HelloWorld"
+```
+
+Otherwise set `server` and `api_key` on this plugin, as in the examples below, and store the key using [Buildkite's guidance for pipeline secrets](https://buildkite.com/docs/pipelines/secrets).
+
+Credentials are read from the same environment variables as the `octopus` CLI: `OCTOPUS_URL`, plus either `OCTOPUS_ACCESS_TOKEN` or `OCTOPUS_API_KEY`. `OCTOPUS_SPACE` is also honoured.
 
 ## Examples
 
@@ -28,7 +47,7 @@ Incorporate the following step in your `pipeline.yml` to create a release in Oct
 ```yml
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
-  - plugins:
+    plugins:
       - OctopusDeploy/create-release#v0.1.1:
           api_key: "${MY_OCTOPUS_API_KEY}"
           project: "HelloWorld"
@@ -40,7 +59,7 @@ steps:
 ```yml
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
-  - plugins:
+    plugins:
       - OctopusDeploy/create-release#v0.1.1:
           api_key: "${MY_OCTOPUS_API_KEY}"
           project: "HelloWorld"
@@ -50,10 +69,12 @@ steps:
 
 ### Version controlled projects
 
+`git_ref` and `git_commit` are only valid for version controlled (config-as-code) projects. Supplying them for a regular project fails with `the GitCommit and GitRef arguments are not supported for this command`.
+
 ```yml
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
-  - plugins:
+    plugins:
       - OctopusDeploy/create-release#v0.1.1:
           api_key: "${MY_OCTOPUS_API_KEY}"
           git_ref: "main"
@@ -69,7 +90,7 @@ steps:
 ```yml
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
-  - plugins:
+    plugins:
       - OctopusDeploy/create-release#v0.1.1:
           api_key: "${MY_OCTOPUS_API_KEY}"
           default_package_version: "1.0.1"
@@ -83,7 +104,7 @@ steps:
 ```yml
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
-  - plugins:
+    plugins:
       - OctopusDeploy/create-release#v0.1.1:
           api_key: "${MY_OCTOPUS_API_KEY}"
           packages:
@@ -99,7 +120,7 @@ steps:
 ```yml
 steps:
   - label: ":octopus-deploy: Create a release in Octopus Deploy"
-  - plugins:
+    plugins:
       - OctopusDeploy/create-release#v0.1.1:
           api_key: "${MY_OCTOPUS_API_KEY}"
           packages:
@@ -109,30 +130,6 @@ steps:
           release_number: "1.0.3"
           server: "${MY_OCTOPUS_SERVER}"
 ```
-
-**Source package version from a folder containing the packages used in a project**
-
-```yml
-steps:
-  - label: ":octopus-deploy: Create a release in Octopus Deploy"
-  - plugins:
-      - OctopusDeploy/create-release#v0.1.1:
-          api_key: "${MY_OCTOPUS_API_KEY}"
-          packages_folder: "packages"
-          project: "HelloWorld"
-          release_number: "1.0.3"
-          server: "${MY_OCTOPUS_SERVER}"
-```
-
-## Configuring
-
-### `OCTOPUS_CLI_SERVER`
-
-Your Octopus Server URL should be set to this environment variable, or you can use `server` in the steps of your pipeline instead.
-
-### `OCTOPUS_CLI_API_KEY`
-
-Your Octopus Server API key should be set to this environment variable, either in your pipeline’s environment variable settings or exposed in an [environment hook](https://buildkite.com/docs/pipelines/secrets#storing-secrets-in-environment-hooks). If you need different keys for different steps in your pipeline use `api_key` instead.
 
 ## 📥 Inputs
 
@@ -144,46 +141,51 @@ Your Octopus Server API key should be set to this environment variable, either i
 
 **The following inputs are optional:**
 
-| Name                      | Description                                                                                                                                                                                                                                                                                                    | Default |
-| :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-----: |
-| `api_key`                 | The environment variable that is configured with your Octopus Server API key used to access Octopus Deploy. Use this if you need to specify different keys for different steps in your pipeline.                                                                                                               |
+| Name                      | Description                                                                                                                                                                            | Default |
+| :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-----: |
+|  `api_key`                | The Octopus API key itself, not the name of a variable holding it (changed in v1). Prefer the octopus-login plugin, which stores no secret.                                                                                                                                                                    | |
 | `channel`                 | The name or ID of the channel to use for the new release. If omitted, the best channel will be selected.                                                                                                                                                                                                       |         |
-| `config_file`             | The path to a configuration file of default values with one `key=value` per line.                                                                                                                                                                                                                              |         |
 | `debug`                   | Enable debug logging.                                                                                                                                                                                                                                                                                          | `false` |
 | `default_package_version` | Use the default version number of all packages for this release.                                                                                                                                                                                                                                               | `false` |
-| `git_commit`              | Git commit to use when creating the release. Use in conjunction with the `gitRef` parameter to select any previous commit.                                                                                                                                                                                     |         |
-| `git_ref`                 | Git reference to use when creating the release.                                                                                                                                                                                                                                                                |         |
+|  `git_commit`             | Git commit to use when creating the release. Version controlled projects only.                                                                                                                                                                                                                                 |         |
+|  `git_ref`                | Git reference to use when creating the release. Version controlled projects only.                                                                                                                                                                                                                              |         |
 | `ignore_channel_rules`    | Create the release ignoring any version rules specified by the channel.                                                                                                                                                                                                                                        | `false` |
 | `ignore_existing`         | Ignore existing releases if present in Octopus Deploy with the matching version number.                                                                                                                                                                                                                        | `false` |
-| `ignore_ssl_errors`       | Ignore certificate errors when communicating with Octopus Deploy. Warning: enabling this option creates a security vulnerability.                                                                                                                                                                              | `false` |
-| `log_level`               | The log level; valid options are `verbose`, `debug`, `information`, `warning`, `error`, and `fatal`.                                                                                                                                                                                                           | `debug` |
+|  `output_format`               | The output format of the octopus CLI; one of `basic`, `json`, or `table`.                                                                                                                                                                                                                                      |         |
 | `packages`                | A single version number or multi-line list of version numbers to use for a package in the release (format: `StepName:Version`, `PackageID:Version`, or `StepName:PackageName:Version`).                                                                                                                        |         |
-| `package_prerelease`      | Pre-release for latest version of all packages to use for this release.                                                                                                                                                                                                                                        |         |
-| `package_version`         | The version number of all packages to use for this release.                                                                                                                                                                                                                                                    |         |
-| `packages_folder`         | The folder designated for containing packages.                                                                                                                                                                                                                                                                 |         |
-| `proxy`                   | The URL of a proxy to use (i.e. `https://proxy.example.com`).                                                                                                                                                                                                                                                  |         |
-| `proxy_password`          | The password used to connect to a proxy. It is strongly recommended following the guidelines in the Buildkite [Managing Pipeline Secrets docs](https://buildkite.com/docs/pipelines/secrets). If `proxy_username` and `proxy_password` are omitted and `proxy` is specified, the default credentials are used. |         |
-| `proxy_username`          | The username used to connect to a proxy. It is strongly recommended following the guidelines in the Buildkite [Managing Pipeline Secrets docs](https://buildkite.com/docs/pipelines/secrets).                                                                                                                  |         |
 | `release_notes`           | The release notes associated with the new release (Markdown is supported).                                                                                                                                                                                                                                     |         |
 | `release_notes_file`      | Path to a file that contains release notes for the new release. Supports Markdown files.                                                                                                                                                                                                                       |         |
 | `release_number`          | The number for the new release.                                                                                                                                                                                                                                                                                |         |
-| `server`                  | The base URL hosting Octopus Deploy (i.e. "https://octopus.example.com/"). It is recommended to retrieve this value from the `OCTOPUS_CLI_SERVER` environment variable.                                                                                                                                        |         |
+|  `server`                 | The base URL hosting Octopus Deploy. Not needed when using the octopus-login plugin.                                                                                                                                                                                                                           |         |
 | `space`                   | The name or ID of a space within which this command will be executed. If omitted, the default space will be used.                                                                                                                                                                                              |         |
-| `timeout`                 | A timeout value for network operations (in seconds).                                                                                                                                                                                                                                                           |  `600`  |
-| `what_if`                 | Perform a dry run; do not create or deploy a release.                                                                                                                                                                                                                                                          | `false` |
+
+## Migrating from v0.x
+
+v0.x used the retired `octo` CLI. This version uses `octopus`, which changes three things.
+
+**`api_key` now takes the key, not a variable name.** v0.x took the *name* of an environment variable and `eval`'d it:
+
+```diff
+- api_key: "MY_OCTOPUS_API_KEY"
++ api_key: "${MY_OCTOPUS_API_KEY}"
+```
+
+**`OCTOPUS_CLI_SERVER` and `OCTOPUS_CLI_API_KEY` are no longer read.** The `octopus` CLI uses `OCTOPUS_URL` and `OCTOPUS_API_KEY`.
+
+**Some options are gone**, as the `octopus` CLI has no equivalent. `what_if`, `packages_folder` and `package_prerelease` are **rejected with an error**, because silently ignoring them would change what your build does. `config_file`, `log_level`, `timeout`, `proxy`, `proxy_username`, `proxy_password` and `ignore_ssl_errors` are ignored with a warning.
 
 ## Developing
 
 To run the tests:
 
 ```shell
-docker-compose run --rm tests
+docker compose run --rm tests
 ```
 
 To lint the plugin:
 
 ```shell
-docker-compose run --rm lint
+docker compose run --rm lint
 ```
 
 ## 🤝 Contributions

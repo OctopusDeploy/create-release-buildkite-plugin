@@ -1,6 +1,6 @@
 ---
 name: tests
-on: 
+on:
   push:
     branches:
       - main
@@ -9,35 +9,28 @@ on:
     # Daily 5am australian/brisbane time (7pm UTC)
     - cron: '0 19 * * *'
 jobs:
+  # Not run inside `container:` — GitHub's Node 24 Alpine binary needs a newer
+  # musl than the buildkite/plugin-* images ship, so actions/checkout cannot
+  # start in them. Going via compose also keeps CI and local runs identical.
   plugin-tests:
     name: Tests
     runs-on: ubuntu-latest
-    # Do not put this job back in a `container:`. GitHub now forces Node 24 for
-    # Node 20 actions, and its Node 24 Alpine binary needs a newer musl than
-    # plugin-tester:v1.1.0 ships, so actions/checkout cannot start inside the
-    # image and the job dies before any test runs, with:
-    #   Error relocating /__e/node24_alpine/bin/node: getrandom: symbol not found
-    # Check out on the host and run the image as a container instead.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: tests
-        run: docker run --rm -v "$PWD:/plugin:ro" buildkite/plugin-tester:v1.1.0 bats tests/
+        run: docker compose run --rm tests
   plugin-lint:
     name: Lint
     runs-on: ubuntu-latest
-    container:
-      image: buildkite/plugin-linter:latest
-      volumes:
-        - "${{github.workspace}}:/plugin"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: lint
-        run: lint --id OctopusDeploy/create-release
+        run: docker compose run --rm lint
   plugin-shellcheck:
     name: Shellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@1.1.0
         with:

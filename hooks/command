@@ -1,4 +1,7 @@
 #!/bin/bash
+# Creates a release in Octopus Deploy using the `octopus` CLI.
+# Credentials come from the environment (OCTOPUS_URL, plus OCTOPUS_ACCESS_TOKEN
+# or OCTOPUS_API_KEY); the octopus-login plugin is the recommended way to set them.
 set -euo pipefail
 
 if [[ "${BUILDKITE_PLUGIN_CREATE_RELEASE_DEBUG:-false}" =~ (true|on|1) ]] ; then
@@ -6,6 +9,11 @@ if [[ "${BUILDKITE_PLUGIN_CREATE_RELEASE_DEBUG:-false}" =~ (true|on|1) ]] ; then
   set -x
   env | sort | grep BUILDKITE_PLUGIN_CREATE_RELEASE
 fi
+
+fail() {
+  echo "🐙 create-release failed: $1" >&2
+  exit 1
+}
 
 # Reads either a value or a list from plugin config into a global result array
 # Returns success if values were read
@@ -29,61 +37,74 @@ function plugin_read_list_into_result() {
   [[ ${#result[@]} -gt 0 ]] || return 1
 }
 
-cmd=( "create-release" )
+# Rejected rather than ignored: silently dropping these would change what the build does.
+for removed in PACKAGES_FOLDER PACKAGE_PRERELEASE WHAT_IF; do
+    var="BUILDKITE_PLUGIN_CREATE_RELEASE_${removed}"
+    if [[ -n "${!var:-}" ]]; then
+        lower="$(echo "$removed" | tr '[:upper:]' '[:lower:]')"
+        fail "'${lower}' is not supported by the octopus CLI. See the README migration notes."
+    fi
+done
+
+for obsolete in CONFIG_FILE IGNORE_SSL_ERRORS LOG_LEVEL PROXY PROXY_PASSWORD PROXY_USERNAME TIMEOUT; do
+    var="BUILDKITE_PLUGIN_CREATE_RELEASE_${obsolete}"
+    if [[ -n "${!var:-}" ]]; then
+        lower="$(echo "$obsolete" | tr '[:upper:]' '[:lower:]')"
+        echo "⚠️  '${lower}' has no octopus CLI equivalent; ignoring." >&2
+    fi
+done
+
+#server:
+if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER:-}" ]]; then
+    export OCTOPUS_URL="${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER}"
+fi
+
+#api_key: the key itself, not the name of a variable holding it (changed in v1)
+if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY:-}" ]]; then
+    export OCTOPUS_API_KEY="${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY}"
+fi
+
+[[ -n "${OCTOPUS_URL:-}" ]] || fail "no Octopus URL. Use the octopus-login plugin, or set 'server'."
+if [[ -z "${OCTOPUS_ACCESS_TOKEN:-}" && -z "${OCTOPUS_API_KEY:-}" ]]; then
+    fail "no credentials. Use the octopus-login plugin, or set 'api_key'."
+fi
+
+# --no-prompt so a misconfigured step fails instead of waiting on stdin
+cmd=( "release" "create" "--no-prompt" )
 
 #channel:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_CHANNEL:-}" ]]; then
     cmd+=( "--channel" "${BUILDKITE_PLUGIN_CREATE_RELEASE_CHANNEL}" )
 fi
 
-#config_file:
-if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_CONFIG_FILE:-}" ]]; then
-    cmd+=( "--configFile" "${BUILDKITE_PLUGIN_CREATE_RELEASE_CONFIG_FILE}")
-fi
-
-#debug:
-if [[ "${BUILDKITE_PLUGIN_CREATE_RELEASE_DEBUG:-false}" =~ ^(true|on|1)$ ]]; then
-    cmd+=( "--debug" )
-fi
-
 #default_package_version:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_DEFAULT_PACKAGE_VERSION:-}" ]]; then
-    cmd+=( "--defaultPackageVersion" "${BUILDKITE_PLUGIN_CREATE_RELEASE_DEFAULT_PACKAGE_VERSION}" )
+    cmd+=( "--package-version" "${BUILDKITE_PLUGIN_CREATE_RELEASE_DEFAULT_PACKAGE_VERSION}" )
 fi
 
 #git_ref:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_REF:-}" ]]; then
-    cmd+=( "--gitRef" "${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_REF}")
+    cmd+=( "--git-ref" "${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_REF}")
 fi
 
 #git_commit:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_COMMIT:-}" ]]; then
-    cmd+=( "--gitCommit" "${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_COMMIT}")
+    cmd+=( "--git-commit" "${BUILDKITE_PLUGIN_CREATE_RELEASE_GIT_COMMIT}")
 fi
 
 #ignore_channel_rules:
 if [[ "${BUILDKITE_PLUGIN_CREATE_RELEASE_IGNORE_CHANNEL_RULES:-false}" =~ ^(true|on|1)$ ]]; then
-    cmd+=( "--ignoreChannelRules" )
+    cmd+=( "--ignore-channel-rules" )
 fi
 
 #ignore_existing:
 if [[ "${BUILDKITE_PLUGIN_CREATE_RELEASE_IGNORE_EXISTING:-false}" =~ ^(true|on|1)$ ]]; then
-    cmd+=( "--ignoreExisting" )
+    cmd+=( "--ignore-existing" )
 fi
 
-#ignore_ssl_errors:
-if [[ "${BUILDKITE_PLUGIN_CREATE_RELEASE_IGNORE_SSL_ERRORS:-false}" =~ ^(true|on|1)$ ]]; then
-    cmd+=( "--ignoreSslErrors" )
-fi
-
-#log_level:
-if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_LOG_LEVEL:-}" ]]; then
-    cmd+=( "--logLevel" "${BUILDKITE_PLUGIN_CREATE_RELEASE_LOG_LEVEL}")
-fi
-
-#package_prerelease:
-if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGE_PRERELEASE:-}" ]]; then
-    cmd+=( "--packagePrerelease" "${BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGE_PRERELEASE}")
+#output_format:
+if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_OUTPUT_FORMAT:-}" ]]; then
+    cmd+=( "--output-format" "${BUILDKITE_PLUGIN_CREATE_RELEASE_OUTPUT_FORMAT}" )
 fi
 
 #packages:
@@ -93,44 +114,24 @@ if plugin_read_list_into_result BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGES ; then
   done
 fi
 
-#packages_folder:
-if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGES_FOLDER:-}" ]]; then
-    cmd+=( "--packagesFolder" "${BUILDKITE_PLUGIN_CREATE_RELEASE_PACKAGES_FOLDER}" )
-fi
-
 #project:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_PROJECT:-}" ]]; then
     cmd+=( "--project" "${BUILDKITE_PLUGIN_CREATE_RELEASE_PROJECT}" )
 fi
 
-#proxy:
-if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_PROXY:-}" ]]; then
-    cmd+=( "--proxy" "${BUILDKITE_PLUGIN_CREATE_RELEASE_PROXY}" )
-fi
-
-#proxy_username:
-if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_PROXY_USERNAME:-}" ]]; then
-    cmd+=( "--proxyUser" "${BUILDKITE_PLUGIN_CREATE_RELEASE_PROXY_USERNAME}" )
-fi
-
-#proxy_password:
-if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_PROXY_PASSWORD:-}" ]]; then
-    cmd+=( "--proxyPass" "${BUILDKITE_PLUGIN_CREATE_RELEASE_PROXY_PASSWORD}" )
-fi
-
 #release_notes:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES:-}" ]]; then
-    cmd+=( "--releaseNotes" "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES}" )
+    cmd+=( "--release-notes" "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES}" )
 fi
 
 #release_notes_file:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES_FILE:-}" ]]; then
-    cmd+=( "--releaseNotesFile" "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES_FILE}" )
+    cmd+=( "--release-notes-file" "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NOTES_FILE}" )
 fi
 
 #release_number:
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NUMBER:-}" ]]; then
-    cmd+=( "--releaseNumber" "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NUMBER}" )
+    cmd+=( "--version" "${BUILDKITE_PLUGIN_CREATE_RELEASE_RELEASE_NUMBER}" )
 fi
 
 #space:
@@ -138,33 +139,8 @@ if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_SPACE:-}" ]]; then
     cmd+=( "--space" "${BUILDKITE_PLUGIN_CREATE_RELEASE_SPACE}" )
 fi
 
-#timeout:
-if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_TIMEOUT:-}" ]]; then
-    cmd+=( "--timeout" "${BUILDKITE_PLUGIN_CREATE_RELEASE_TIMEOUT}" )
-fi
-
-#what_if:
-if [[ "${BUILDKITE_PLUGIN_CREATE_RELEASE_WHAT_IF:-false}" =~ ^(true|on|1)$ ]]; then
-    cmd+=( "--whatIf" )
-fi
-
-args=()
-maskedArgs=()
-#server:
-if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER:-}" ]]; then
-    args+=( "--server" "${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER}" )
-    maskedArgs+=( "--server" "${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER}" )
-fi
-
-#api_key:
-if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY:-}" ]]; then
-    args+=( "--apiKey" "$(eval "echo \$${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY}")" )
-    maskedArgs+=( "--apiKey" "SECRET" )
-fi
-
-echo "+++ :octopus-deploy: Running create-release"
+echo "+++ :octopus-deploy: Running release create"
 # shellcheck disable=SC2145
-echo "Running command: ${cmd[@]} ${maskedArgs[@]}"
+echo "Running command: octopus ${cmd[@]}"
 
-# shellcheck disable=SC2145 # cmd and args needs to be quoted correctly, and this code is correct
-octo "${cmd[@]}" "${args[@]}"
+octopus "${cmd[@]}"
