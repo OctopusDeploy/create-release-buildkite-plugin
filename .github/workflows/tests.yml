@@ -12,14 +12,16 @@ jobs:
   plugin-tests:
     name: Tests
     runs-on: ubuntu-latest
-    container:
-      image: buildkite/plugin-tester:v1.1.0
-      volumes:
-        - "${{github.workspace}}:/plugin"
+    # Do not put this job back in a `container:`. GitHub now forces Node 24 for
+    # Node 20 actions, and its Node 24 Alpine binary needs a newer musl than
+    # plugin-tester:v1.1.0 ships, so actions/checkout cannot start inside the
+    # image and the job dies before any test runs, with:
+    #   Error relocating /__e/node24_alpine/bin/node: getrandom: symbol not found
+    # Check out on the host and run the image as a container instead.
     steps:
       - uses: actions/checkout@v3
       - name: tests
-        run: bats tests/
+        run: docker run --rm -v "$PWD:/plugin:ro" buildkite/plugin-tester:v1.1.0 bats tests/
   plugin-lint:
     name: Lint
     runs-on: ubuntu-latest
