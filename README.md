@@ -4,7 +4,7 @@
 
 This is a [Buildkite](https://buildkite.com/) plugin to create a release in [Octopus Deploy](https://octopus.com/).
 
-**This plugin requires the [`octopus` CLI](https://octopus.com/docs/octopus-rest-api/cli) to be installed on the Buildkite agent.** Earlier versions used the retired `octo` CLI — see [Migrating from v0.x](#migrating-from-v0x).
+**This plugin requires the [`octopus` CLI](https://octopus.com/docs/octopus-rest-api/cli) to be installed on the Buildkite agent.** Earlier versions used the retired `octo` CLI — see [Migrating from 0.1.x](#migrating-from-01x).
 
 ## Releases in Octopus Deploy
 
@@ -143,7 +143,7 @@ steps:
 
 | Name                      | Description                                                                                                                                                                            | Default |
 | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-----: |
-|  `api_key`                | The Octopus API key itself, not the name of a variable holding it (changed in v1). Prefer the octopus-login plugin, which stores no secret.                                                                                                                                                                    | |
+|  `api_key`                | The Octopus API key itself, not the name of a variable holding it (changed in 0.2.0). Prefer the octopus-login plugin, which stores no secret.                                                                                                                                                                    | |
 | `channel`                 | The name or ID of the channel to use for the new release. If omitted, the best channel will be selected.                                                                                                                                                                                                       |         |
 | `debug`                   | Enable debug logging.                                                                                                                                                                                                                                                                                          | `false` |
 | `default_package_version` | Use the default version number of all packages for this release.                                                                                                                                                                                                                                               | `false` |
@@ -159,11 +159,11 @@ steps:
 |  `server`                 | The base URL hosting Octopus Deploy. Not needed when using the octopus-login plugin.                                                                                                                                                                                                                           |         |
 | `space`                   | The name or ID of a space within which this command will be executed. If omitted, the default space will be used.                                                                                                                                                                                              |         |
 
-## Migrating from v0.x
+## Migrating from 0.1.x
 
-v0.x used the retired `octo` CLI. This version uses `octopus`, which changes three things.
+0.1.x used the retired `octo` CLI. This version uses `octopus`, which changes three things.
 
-**`api_key` now takes the key, not a variable name.** v0.x took the *name* of an environment variable and `eval`'d it:
+**`api_key` now takes the key, not a variable name.** 0.1.x took the *name* of an environment variable and `eval`'d it:
 
 ```diff
 - api_key: "MY_OCTOPUS_API_KEY"

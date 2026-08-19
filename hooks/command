@@ -59,7 +59,7 @@ if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER:-}" ]]; then
     export OCTOPUS_URL="${BUILDKITE_PLUGIN_CREATE_RELEASE_SERVER}"
 fi
 
-#api_key: the key itself, not the name of a variable holding it (changed in v1)
+#api_key: the key itself, not the name of a variable holding it (changed in 0.2.0)
 if [[ -n "${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY:-}" ]]; then
     export OCTOPUS_API_KEY="${BUILDKITE_PLUGIN_CREATE_RELEASE_API_KEY}"
 fi
