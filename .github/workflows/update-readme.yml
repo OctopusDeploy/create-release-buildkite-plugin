@@ -3,6 +3,9 @@ on:
     branches:
       - release-please--**
 name: "Update README"
+concurrency:
+  group: update-readme-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,7 +16,7 @@ jobs:
       - name: Update README
         run: |-
           VERSION=$(cat version.txt)
-          sed -i "s/\(OctopusDeploy\/create-release#\).*/\1v${VERSION}/g" README.md
+          sed -i -E "s|(OctopusDeploy/create-release#)v?[0-9][^:[:space:]]*:?|\1v${VERSION}:|g" README.md
       - name: commit
         run: |-
           git config --global user.name "team-integrations-fnm-bot"
