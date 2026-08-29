@@ -19,22 +19,42 @@ More information about releases in Octopus Deploy:
 
 ## Authentication
 
-The recommended way to authenticate is the [octopus-login plugin](https://github.com/OctopusDeploy/octopus-login-buildkite-plugin), which uses OpenID Connect. No API key is stored in your pipeline, and the token it issues lasts one hour:
+Set `server` and `api_key` on this plugin, as in the examples below, storing the key with [Buildkite's guidance for pipeline secrets](https://buildkite.com/docs/pipelines/secrets).
 
-```yml
-steps:
-  - label: ":octopus-deploy: Create a release in Octopus Deploy"
-    plugins:
-      - OctopusDeploy/octopus-login#v1.0.0:
-          server: "https://my.octopus.app"
-          service_account_id: "d5de4670-4678-4c08-9479-09555cd6ccbb"
-      - OctopusDeploy/create-release#v0.2.0:
-          project: "HelloWorld"
+Credentials are read from the same environment variables as the `octopus` CLI: `OCTOPUS_URL`, plus either `OCTOPUS_ACCESS_TOKEN` or `OCTOPUS_API_KEY`. `OCTOPUS_SPACE` is also honoured. Anything that sets those before this plugin runs will work, so you are not limited to the two properties.
+
+### Without an API key, using OpenID Connect
+
+Octopus can [exchange a Buildkite OIDC token for a short-lived access token](https://octopus.com/docs/octopus-rest-api/openid-connect/other-issuers), so no long-lived secret is stored in your pipeline. There is no login plugin for Buildkite yet; until there is, do the exchange in a step of your own and export `OCTOPUS_ACCESS_TOKEN`.
+
+Add an OIDC identity to an Octopus service account, choosing **Other Issuer**:
+
+| Field | Value |
+| :-- | :-- |
+| Issuer | `https://agent.buildkite.com` |
+| Subject | `organization:ORG:pipeline:PIPELINE:ref:refs/heads/main:commit:*:step:*` |
+
+Buildkite's subject claim includes the commit SHA, so **`commit:*` is effectively required** — without it the identity only ever authorises the one build it was created from.
+
+Then, before this plugin runs:
+
+```bash
+SERVICE_ACCOUNT_ID="<the Service Account Id shown in Octopus>"
+export OCTOPUS_URL="https://my.octopus.app"
+
+ID_TOKEN="$(buildkite-agent oidc request-token --audience "$SERVICE_ACCOUNT_ID")"
+TOKEN_ENDPOINT="$(curl -sSf "$OCTOPUS_URL/.well-known/openid-configuration" | jq -r .token_endpoint)"
+
+export OCTOPUS_ACCESS_TOKEN="$(curl -sSf -X POST "$TOKEN_ENDPOINT" \
+  -H 'Content-Type: application/json' \
+  -d "$(jq -nc --arg a "$SERVICE_ACCOUNT_ID" --arg t "$ID_TOKEN" \
+        '{grant_type:"urn:ietf:params:oauth:grant-type:token-exchange",
+          audience:$a, subject_token:$t,
+          subject_token_type:"urn:ietf:params:oauth:token-type:jwt"}')" \
+  | jq -r .access_token)"
 ```
 
-Otherwise set `server` and `api_key` on this plugin, as in the examples below, and store the key using [Buildkite's guidance for pipeline secrets](https://buildkite.com/docs/pipelines/secrets).
-
-Credentials are read from the same environment variables as the `octopus` CLI: `OCTOPUS_URL`, plus either `OCTOPUS_ACCESS_TOKEN` or `OCTOPUS_API_KEY`. `OCTOPUS_SPACE` is also honoured.
+Note that Buildkite steps do not share an environment, so this has to run in the same step as the plugin.
 
 ## Examples
 
@@ -143,7 +163,7 @@ steps:
 
 | Name                      | Description                                                                                                                                                                            | Default |
 | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-----: |
-|  `api_key`                | The Octopus API key itself, not the name of a variable holding it (changed in 0.2.0). Prefer the octopus-login plugin, which stores no secret.                                                                                                                                                                    | |
+|  `api_key`                | The Octopus API key itself, not the name of a variable holding it (changed in 0.2.0). Consider OpenID Connect instead, which stores no secret.                                                                                                                                                                    | |
 | `channel`                 | The name or ID of the channel to use for the new release. If omitted, the best channel will be selected.                                                                                                                                                                                                       |         |
 | `debug`                   | Enable debug logging.                                                                                                                                                                                                                                                                                          | `false` |
 | `default_package_version` | Use the default version number of all packages for this release.                                                                                                                                                                                                                                               | `false` |
@@ -156,7 +176,7 @@ steps:
 | `release_notes`           | The release notes associated with the new release (Markdown is supported).                                                                                                                                                                                                                                     |         |
 | `release_notes_file`      | Path to a file that contains release notes for the new release. Supports Markdown files.                                                                                                                                                                                                                       |         |
 | `release_number`          | The number for the new release.                                                                                                                                                                                                                                                                                |         |
-|  `server`                 | The base URL hosting Octopus Deploy. Not needed when using the octopus-login plugin.                                                                                                                                                                                                                           |         |
+|  `server`                 | The base URL hosting Octopus Deploy. Not needed if OCTOPUS_URL is already set.                                                                                                                                                                                                                           |         |
 | `space`                   | The name or ID of a space within which this command will be executed. If omitted, the default space will be used.                                                                                                                                                                                              |         |
 
 ## Migrating from 0.1.x

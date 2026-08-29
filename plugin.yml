@@ -7,7 +7,7 @@ configuration:
   properties:
     api_key:
       type: string
-      description: 'The Octopus API key itself, not the name of a variable holding it (changed in 0.2.0). Prefer the octopus-login plugin, which stores no secret.'
+      description: 'The Octopus API key itself, not the name of a variable holding it (changed in 0.2.0). Consider OpenID Connect instead, which stores no secret.'
     channel:
       type: string
       description: 'The name or ID of the channel to use for the new release. If omitted, the best channel will be selected.'
@@ -55,7 +55,7 @@ configuration:
       description: 'The number for the new release.'
     server:
       type: string
-      description: 'The base URL hosting Octopus Deploy (i.e. "https://octopus.example.app"). Not needed when using the octopus-login plugin.'
+      description: 'The base URL hosting Octopus Deploy (i.e. "https://octopus.example.app"). Not needed if OCTOPUS_URL is already set.'
     space:
       type: string
       description: 'The name or ID of a space within which this command will be executed. If omitted, the default space will be used.'
